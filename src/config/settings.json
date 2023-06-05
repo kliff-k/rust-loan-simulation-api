@@ -1,0 +1,13 @@
+{
+  "db": {
+    "host": "",
+    "port": 0,
+    "database": "",
+    "user": "",
+    "pass": ""
+  },
+  "hub": {
+    "connection_string": "",
+    "hub_name": ""
+  }
+}
