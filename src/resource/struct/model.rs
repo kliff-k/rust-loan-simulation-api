@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tiberius_derive::*;
+use validator::Validate;
+use crate::resource::util::validator::*;
 
 /// Estrutura de configuração de execução.
 #[derive(Clone, Serialize, Deserialize)]
@@ -26,10 +28,13 @@ pub struct Hub {
 }
 
 /// Envelope da requisição de simulação de empréstimo.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
+#[validate(schema(function = "valida_envelope"))]
 pub struct RequisicaoSimulacao {
+    #[validate(range(min = 200))]
     pub(crate) valor_desejado: f64,
+    #[validate(range(min = 0))]
     pub(crate) prazo: i32,
 }
 

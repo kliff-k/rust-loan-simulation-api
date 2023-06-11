@@ -1,6 +1,9 @@
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::Json;
+use axum::response::{IntoResponse, Response};
+use serde_json::json;
+use validator::Validate;
 use crate::model;
 use crate::resource::service::db::busca_produto;
 use crate::resource::service::hub::envia_evento_hub;
@@ -12,7 +15,13 @@ use crate::resource::util::calculator;
 pub async fn post_simulacao (
     State(settings): State<model::Config>,
     Json(payload): Json<model::RequisicaoSimulacao>
-    ) -> (StatusCode, Json<model::RetornoSimulacao>) {
+    ) -> (StatusCode, Response) {
+
+    // Realiza validação do envelope
+    match payload.validate() {
+        Ok(_) => (),
+        Err(e) => return (StatusCode::BAD_REQUEST, Json(e).into_response())
+    }
 
     // Consulta produto
     let rows = busca_produto(&payload, &settings.db)
@@ -21,7 +30,13 @@ pub async fn post_simulacao (
         .map(model::Produto::from_row)
         .collect::<Result<Vec<_>, _>>().unwrap();
 
-    // Gere resposta
+    // Realiza validação do retorno do banco
+    match rows.len() {
+        0 => return (StatusCode::BAD_REQUEST, Json(json!({"erro": "Combinação de valor + prazo inválida."})).into_response()),
+        _ => ()
+    }
+
+    // Gera resposta
     let mut result = model::RetornoSimulacao {
         codigo_produto: 0,
         descricao_produto: "".to_string(),
@@ -46,5 +61,5 @@ pub async fn post_simulacao (
     envia_evento_hub(&result, &settings.hub).await;
 
     // Retorna resultado ao cliente
-    (StatusCode::OK, Json(result))
+    (StatusCode::OK, Json(result).into_response())
 }
