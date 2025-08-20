@@ -1,0 +1,7 @@
+POST http://localhost:8080/api/Simulacao
+Content-Type: application/json
+
+{
+  "valorDesejado": 900.00,
+  "prazo": 5
+}

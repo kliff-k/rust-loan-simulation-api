@@ -21,9 +21,12 @@ async fn main() {
         .with_state(settings);
 
     // Inicia o servidor web (localhost, porta 80)
-    let addr = SocketAddr::from(([127, 0, 0, 1], 80));
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .expect("Não foi possível vincular ao endereço/porta.");
+
+    axum::serve(listener, app)
         .await
         .expect("Não foi possível iniciar servidor web.");
 }

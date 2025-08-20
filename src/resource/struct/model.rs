@@ -32,7 +32,7 @@ pub struct Hub {
 #[serde(rename_all = "camelCase")]
 #[validate(schema(function = "valida_envelope"))]
 pub struct RequisicaoSimulacao {
-    #[validate(range(min = 200))]
+    #[validate(range(min = 200f64))]
     pub(crate) valor_desejado: f64,
     #[validate(range(min = 0))]
     pub(crate) prazo: i32,
